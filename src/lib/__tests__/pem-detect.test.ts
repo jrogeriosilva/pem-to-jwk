@@ -9,7 +9,7 @@ describe("detectPem — supported labels", () => {
       expect(r.ok).toBe(true)
       if (!r.ok) return
       expect(r.body.length).toBeGreaterThan(0)
-      expect(["spki", "pkcs8", "x509"]).toContain(r.type)
+      expect(["spki", "pkcs8", "x509", "pkcs1-private", "pkcs1-public"]).toContain(r.type)
     })
   }
 })
@@ -36,14 +36,22 @@ describe("detectPem — error paths", () => {
     expect(r.error).toMatch(/incomplete pem block/i)
   })
 
-  it("rejects unsupported label with hint (PKCS#1)", () => {
+  it("detects PKCS#1 RSA PRIVATE KEY as pkcs1-private", () => {
     const r = detectPem(
       "-----BEGIN RSA PRIVATE KEY-----\nAAAA\n-----END RSA PRIVATE KEY-----"
     )
-    expect(r.ok).toBe(false)
-    if (r.ok) return
-    expect(r.error).toMatch(/RSA PRIVATE KEY/i)
-    expect(r.suggestion).toMatch(/openssl pkcs8/i)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.type).toBe("pkcs1-private")
+  })
+
+  it("detects PKCS#1 RSA PUBLIC KEY as pkcs1-public", () => {
+    const r = detectPem(
+      "-----BEGIN RSA PUBLIC KEY-----\nAAAA\n-----END RSA PUBLIC KEY-----"
+    )
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.type).toBe("pkcs1-public")
   })
 
   it("rejects unsupported label with hint (OpenSSH)", () => {
