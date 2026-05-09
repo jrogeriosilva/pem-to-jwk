@@ -11,6 +11,7 @@ function fmtDate(d: Date): string {
 export function X509MetaPanel({ meta }: X509MetaPanelProps) {
   return (
     <div
+      role="region"
       className="rounded-md border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed"
       aria-label="X.509 certificate metadata"
     >
