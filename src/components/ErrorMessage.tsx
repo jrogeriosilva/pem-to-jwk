@@ -1,11 +1,13 @@
 interface ErrorMessageProps {
+  id?: string
   title: string
   suggestion?: string
 }
 
-export function ErrorMessage({ title, suggestion }: ErrorMessageProps) {
+export function ErrorMessage({ id, title, suggestion }: ErrorMessageProps) {
   return (
     <div
+      id={id}
       role="alert"
       className="rounded-md border border-destructive/50 bg-card p-3"
     >

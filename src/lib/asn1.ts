@@ -3,7 +3,11 @@
 // curve OID for ecPublicKey). Not a general ASN.1 parser.
 
 const TAG_SEQUENCE = 0x30
+const TAG_SET = 0x31
 const TAG_OID = 0x06
+const TAG_INTEGER = 0x02
+const TAG_UTCTIME = 0x17
+const OID_COMMON_NAME = "2.5.4.3"
 
 interface TLV {
   tag: number
@@ -128,4 +132,124 @@ function readAlgFromAlgId(algIdBody: Uint8Array): { algOid: string; paramOid?: s
     }
   }
   return { algOid, paramOid }
+}
+
+// ── X.509 metadata ──────────────────────────────────────────────────────────
+
+export interface X509Meta {
+  serial: string
+  issuerCN?: string
+  subjectCN?: string
+  notBefore: Date
+  notAfter: Date
+  isExpired: boolean
+}
+
+function parseTime(body: Uint8Array, tag: number): Date {
+  const str = new TextDecoder().decode(body)
+  if (tag === TAG_UTCTIME) {
+    // YYMMDDHHMMSSZ — years 00-49 → 2000s, 50-99 → 1900s
+    const yr = parseInt(str.slice(0, 2), 10)
+    return new Date(
+      Date.UTC(
+        yr >= 50 ? 1900 + yr : 2000 + yr,
+        parseInt(str.slice(2, 4), 10) - 1,
+        parseInt(str.slice(4, 6), 10),
+        parseInt(str.slice(6, 8), 10),
+        parseInt(str.slice(8, 10), 10),
+        parseInt(str.slice(10, 12), 10),
+      ),
+    )
+  }
+  // GeneralizedTime: YYYYMMDDHHMMSSZ
+  return new Date(
+    Date.UTC(
+      parseInt(str.slice(0, 4), 10),
+      parseInt(str.slice(4, 6), 10) - 1,
+      parseInt(str.slice(6, 8), 10),
+      parseInt(str.slice(8, 10), 10),
+      parseInt(str.slice(10, 12), 10),
+      parseInt(str.slice(12, 14), 10),
+    ),
+  )
+}
+
+function extractCN(nameBody: Uint8Array): string | undefined {
+  let cursor = 0
+  while (cursor < nameBody.length) {
+    const rdn = readTLV(nameBody, cursor)
+    cursor = rdn.end
+    if (rdn.tag !== TAG_SET) continue
+    let rdnCursor = 0
+    while (rdnCursor < rdn.body.length) {
+      const atv = readTLV(rdn.body, rdnCursor)
+      rdnCursor = atv.end
+      if (atv.tag !== TAG_SEQUENCE) continue
+      const oidTlv = readTLV(atv.body, 0)
+      if (oidTlv.tag !== TAG_OID) continue
+      if (oidToString(oidTlv.body) === OID_COMMON_NAME) {
+        const valTlv = readTLV(atv.body, oidTlv.end)
+        return new TextDecoder().decode(valTlv.body)
+      }
+    }
+  }
+  return undefined
+}
+
+/** Extract notBefore, notAfter, issuer CN, subject CN and serial from a
+ *  DER-encoded X.509 certificate. Never throws — returns empty values on
+ *  parse error so the caller can still show partial results. */
+export function readX509Metadata(der: Uint8Array): X509Meta {
+  try {
+    const outer = readTLV(der, 0)
+    const tbs = readTLV(outer.body, 0)
+    const tbsBody = tbs.body
+    let cursor = 0
+
+    // Optional version [0] EXPLICIT
+    const maybeVersion = readTLV(tbsBody, cursor)
+    if (maybeVersion.tag === 0xa0) cursor = maybeVersion.end
+
+    // serialNumber INTEGER
+    const serialTlv = readTLV(tbsBody, cursor)
+    if (serialTlv.tag !== TAG_INTEGER) throw new Error("expected serialNumber INTEGER")
+    cursor = serialTlv.end
+    let serialBytes = serialTlv.body
+    // Strip DER sign-padding zero byte for positive integers
+    if (serialBytes.length > 1 && serialBytes[0] === 0x00) serialBytes = serialBytes.subarray(1)
+    const serial = Array.from(serialBytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join(":")
+
+    // signature AlgorithmIdentifier (skip)
+    cursor = readTLV(tbsBody, cursor).end
+
+    // issuer Name
+    const issuerTlv = readTLV(tbsBody, cursor)
+    cursor = issuerTlv.end
+    const issuerCN = extractCN(issuerTlv.body)
+
+    // validity SEQUENCE { notBefore, notAfter }
+    const validityTlv = readTLV(tbsBody, cursor)
+    cursor = validityTlv.end
+    let vCur = 0
+    const notBeforeTlv = readTLV(validityTlv.body, vCur)
+    vCur = notBeforeTlv.end
+    const notAfterTlv = readTLV(validityTlv.body, vCur)
+    const notBefore = parseTime(notBeforeTlv.body, notBeforeTlv.tag)
+    const notAfter = parseTime(notAfterTlv.body, notAfterTlv.tag)
+
+    // subject Name
+    const subjectTlv = readTLV(tbsBody, cursor)
+    const subjectCN = extractCN(subjectTlv.body)
+
+    return { serial, issuerCN, subjectCN, notBefore, notAfter, isExpired: notAfter < new Date() }
+  } catch {
+    return {
+      serial: "",
+      notBefore: new Date(0),
+      notAfter: new Date(0),
+      isExpired: true,
+    }
+  }
 }

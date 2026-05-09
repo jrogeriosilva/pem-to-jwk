@@ -5,6 +5,7 @@ import { Check, Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ErrorMessage } from "@/components/ErrorMessage"
+import { X509MetaPanel } from "@/components/X509MetaPanel"
 import { convertPemToJwk, type ConvertResult } from "@/lib/pem-to-jwk"
 
 interface JwkOutputProps {
@@ -67,7 +68,7 @@ export function JwkOutput({ pem }: JwkOutputProps) {
   const empty = !pem.trim()
 
   return (
-    <section className="flex flex-col gap-2">
+    <section className="flex flex-col gap-2" aria-label="JWK output">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">JWK output</h2>
         {result?.ok && (
@@ -96,7 +97,14 @@ export function JwkOutput({ pem }: JwkOutputProps) {
           </div>
         )}
       </div>
-      <div className="min-h-[200px] rounded-md border border-border bg-card p-4">
+      {result?.ok && result.x509Meta && (
+        <X509MetaPanel meta={result.x509Meta} />
+      )}
+      <div
+        className="min-h-[200px] rounded-md border border-border bg-card p-4"
+        aria-busy={pending}
+        aria-live="polite"
+      >
         {empty && (
           <p className="text-sm text-muted-foreground">
             Decoded JWK will appear here.

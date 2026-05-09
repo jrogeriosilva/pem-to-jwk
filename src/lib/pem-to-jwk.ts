@@ -1,7 +1,10 @@
 import { exportJWK, importPKCS8, importSPKI, importX509 } from "jose"
 import type { JWK } from "jose"
-import { readAlgorithmOid } from "@/lib/asn1"
+import { readAlgorithmOid, readX509Metadata, type X509Meta } from "@/lib/asn1"
 import { detectPem, type PemType } from "@/lib/pem-detect"
+import { checkWebCryptoSupport } from "@/lib/webcrypto-support"
+
+export type { X509Meta }
 
 export interface ConvertOk {
   ok: true
@@ -9,6 +12,7 @@ export interface ConvertOk {
   alg: string
   type: PemType
   headerLabel: string
+  x509Meta?: X509Meta
 }
 
 export interface ConvertErr {
@@ -164,9 +168,11 @@ export async function convertPemToJwk(pem: string): Promise<ConvertResult> {
 
   let alg: string
   let algOid: string
+  let paramOid: string | undefined
   try {
     const oids = readAlgorithmOid(detected.body, detected.type)
     algOid = oids.algOid
+    paramOid = oids.paramOid
     alg = pickAlg(oids.algOid, oids.paramOid)
   } catch (err) {
     const msg = (err as Error).message
@@ -192,6 +198,16 @@ export async function convertPemToJwk(pem: string): Promise<ConvertResult> {
     }
   }
 
+  const support = await checkWebCryptoSupport(algOid, paramOid)
+  if (support && !support.supported) {
+    return {
+      ok: false,
+      error: `Your browser does not implement ${support.algName}.`,
+      suggestion:
+        "Try the latest Chrome or Edge, or process the key in a more complete JS runtime (Node.js ≥ 18).",
+    }
+  }
+
   let pemForImport = pem.trim()
   if (algOid === OID_RSA_PSS && detected.type !== "x509") {
     const rewritten =
@@ -211,12 +227,14 @@ export async function convertPemToJwk(pem: string): Promise<ConvertResult> {
       key = await importX509(pemForImport, alg, { extractable: true })
     }
     const jwk = await exportJWK(key)
+    const x509Meta = detected.type === "x509" ? readX509Metadata(detected.body) : undefined
     return {
       ok: true,
       jwk,
       alg,
       type: detected.type,
       headerLabel: detected.headerLabel,
+      x509Meta,
     }
   } catch (err) {
     return {
