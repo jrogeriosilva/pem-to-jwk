@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { ErrorMessage } from "@/components/ErrorMessage"
 import { FormatBadge } from "@/components/FormatBadge"
 import { SamplePayloadsMenu } from "@/components/SamplePayloadsMenu"
-import { detectPem, type PemDetectResult } from "@/lib/pem-detect"
+import { detectPem, MAX_PEM_BYTES, type PemDetectResult } from "@/lib/pem-detect"
 import { debounce } from "@/lib/debounce"
 import type { SamplePem } from "@/lib/samples"
 
@@ -93,6 +93,7 @@ export function PemInput({ onPem }: PemInputProps) {
         value={input}
         onChange={handleChange}
         spellCheck={false}
+        maxLength={MAX_PEM_BYTES}
         placeholder="Paste a PEM block here — -----BEGIN PUBLIC KEY-----, -----BEGIN PRIVATE KEY-----, or -----BEGIN CERTIFICATE-----"
         className="min-h-[120px] max-h-[320px] resize-none bg-card border-border font-mono text-sm"
       />

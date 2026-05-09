@@ -73,6 +73,53 @@ B2e5ouMDfAZ5ly3QDxFqKHQLeO7Pai4f3hJrYBlmmhHSLRjSVENI1V6v
 -----END PRIVATE KEY-----`,
   },
   {
+    id: "rsa-pss-2048-spki",
+    title: "RSA-PSS-2048 Public Key",
+    description: "SubjectPublicKeyInfo — kty: RSA, alg: PS256",
+    pem: `-----BEGIN PUBLIC KEY-----
+MIIBIDALBgkqhkiG9w0BAQoDggEPADCCAQoCggEBALuqF6b3vzKvkEJeetEZstcD
+FV/3bqgY9GmyLYc0v+XodWnCIi1nNDuc3w5cy2Wis2MqpZGXc2j5iQxGfCilVS1I
+Cm0LbXtJ+Wq285QvCpeY9X2xte3U3oqPD5BVFeeqUpZGAKTxmzLlqcqTYKOwxW5o
+OIFO8/ryblMlppkke/t4C+eKgi3fdCWebiva/BH1ev3Tga/K948Gm9FApyxLRNJR
+7ia+Xt6/NvG7eXGUDOruf+zM6UntyjQJ6HHNufReqfizu1lLHo+4nawvIINkDysa
+24pSGWxUZcsLfxpLB4EG0OskVh3FW6YG4oQk2NLjSKEor5B3+N6vcaMW7bcS+JsC
+AwEAAQ==
+-----END PUBLIC KEY-----`,
+  },
+  {
+    id: "rsa-pss-2048-pkcs8",
+    title: "RSA-PSS-2048 Private Key",
+    description: "PKCS#8 — kty: RSA, alg: PS256",
+    pem: `-----BEGIN PRIVATE KEY-----
+MIIEvAIBADALBgkqhkiG9w0BAQoEggSoMIIEpAIBAAKCAQEAu6oXpve/Mq+QQl56
+0Rmy1wMVX/duqBj0abIthzS/5eh1acIiLWc0O5zfDlzLZaKzYyqlkZdzaPmJDEZ8
+KKVVLUgKbQtte0n5arbzlC8Kl5j1fbG17dTeio8PkFUV56pSlkYApPGbMuWpypNg
+o7DFbmg4gU7z+vJuUyWmmSR7+3gL54qCLd90JZ5uK9r8EfV6/dOBr8r3jwab0UCn
+LEtE0lHuJr5e3r828bt5cZQM6u5/7MzpSe3KNAnocc259F6p+LO7WUsej7idrC8g
+g2QPKxrbilIZbFRlywt/GksHgQbQ6yRWHcVbpgbihCTY0uNIoSivkHf43q9xoxbt
+txL4mwIDAQABAoIBAAlyV3x1Li+7/LQKk34hIAqIwjOxfeWCVBNZ/8a1lg9Zs0de
+mV/VuSBjFitf6nE0TnlodSsuB4Y6QXbXuXpGUFJWNQgmMh2prJ99lCdactsMvRbV
+skXFmGo7J1ppng+qWDvuTCwBaYGXZAOphYzX4ihboLSJp+hy+bC/zXIaDw+qdkKD
+1cHXZijHZLEpD6pcMBirwHVVyUNozNfGKnrpRpuzKify0uh4W3gu8l69cXinlRgU
+xsLv/pix9fxh1cu8JAvdQg2meWg45HC/ZRVtUbCO4JUJUPwDDnv33+8Vu0Ho3PCg
+CdbUHhaPEwxOHIgxdx6GOghZ6oQhZA+OsNHwNqkCgYEA4shOoJVaH++cpjAGCjfO
+eO3WuG+9MHj0YsgLltuyHCK6BTVpDm3dXHY4XFX29BgOinBPcEtP2f12Q5BqzK7v
+P7lUmbHn/lP1EuZJa7Y2BKYr/n4GpHn/w6R+ojuOAmQQzt4ES1JxZT3Y1NObo6l/
+gzSRRobQQkMHQTaZ6AIsXv8CgYEA09eaOIg2fO/QeBdSNBbYrMqz/Oyxdzis76j7
+xpbsEn6RevnLCx86KoXgz4hsHYy4jtk7Nw6y7SIf9+KQdrufsuFMNCEtWFx8zDeX
+z0bTAhIKyc9jH3v9EBtZHJULhhxojmP13qaMndBONcdqVfZoP2k6U1e5VrEU5BHz
+BYCsgmUCgYBYIdoUpBYjRR5Oo2klfWybKGsCwEH43Xi0DuQaG4ULVB+QuKH8PowB
+S9w5Xhsb32F/QYhNrqb4o3zbYvtuUimeTSrok/ABsaUTVDWCS4yQn/eG7nksYFEa
+OgoQiC53FWZGzpdComZ5HuDuTNI2dz+bwMkYbHnw1lWybULAnF+cBwKBgQCzs89l
+aVcfgKeNV+spuL+xRHqOcZLRmchJvUVnXxt/TNLISSHOm3zSGaNtKULdhkQBGZG7
+0MJDmpEXzJ/TuLFuIuRrzEEVFc/fxMEI2gGhXgC81So2yQ0RHsHnFyAhcfPX5j/p
+0cqzDMNrp3Ay38XrFK6fiGj2e11HY1qOLmsoaQKBgQCyZCM5pyTseqnkQOK8MAkn
+kgvVLH6M5MbHRyCS5YgQPV8/9L6xWj1dCbpejSzTsQeIP9Q4h8jUtueDOAaZJ1AY
+ShuxZyginrGN4pLmzNuEf6svsoZ4p8ARHFyNwATMnQgbM7DulsxlooaDjW3v24Bk
+YxttcXkpmv0NXh7GP2WF9w==
+-----END PRIVATE KEY-----`,
+  },
+  {
     id: "x509-cert",
     title: "X.509 Certificate",
     description: "Self-signed RSA certificate — extracts SPKI",

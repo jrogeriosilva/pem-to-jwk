@@ -14,7 +14,7 @@ interface TLV {
 function readTLV(bytes: Uint8Array, offset: number): TLV {
   if (offset >= bytes.length) throw new Error("ASN.1: unexpected end of data")
   const tag = bytes[offset]
-  let lenByte = bytes[offset + 1]
+  const lenByte = bytes[offset + 1]
   let lenStart = offset + 2
   let length: number
   if ((lenByte & 0x80) === 0) {
