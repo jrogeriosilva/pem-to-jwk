@@ -39,7 +39,6 @@ export function JwkOutput({ pem }: JwkOutputProps) {
     let cancelled = false
     const trimmed = pem.trim()
     if (!trimmed) {
-      setResult(null)
       setPending(false)
       return
     }
@@ -66,15 +65,16 @@ export function JwkOutput({ pem }: JwkOutputProps) {
   }
 
   const empty = !pem.trim()
+  const displayResult = empty ? null : result
 
   return (
     <section className="flex flex-col gap-2" aria-label="JWK output">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">JWK output</h2>
-        {result?.ok && (
+        {displayResult?.ok && (
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="font-mono">
-              alg: {result.alg}
+              alg: {displayResult.alg}
             </Badge>
             <Button
               variant="outline"
@@ -97,8 +97,8 @@ export function JwkOutput({ pem }: JwkOutputProps) {
           </div>
         )}
       </div>
-      {result?.ok && result.x509Meta && (
-        <X509MetaPanel meta={result.x509Meta} />
+      {displayResult?.ok && displayResult.x509Meta && (
+        <X509MetaPanel meta={displayResult.x509Meta} />
       )}
       <div
         className="min-h-[200px] rounded-md border border-border bg-card p-4"
@@ -110,15 +110,15 @@ export function JwkOutput({ pem }: JwkOutputProps) {
             Decoded JWK will appear here.
           </p>
         )}
-        {!empty && pending && !result && (
+        {!empty && pending && !displayResult && (
           <p className="text-sm text-muted-foreground">Decoding…</p>
         )}
-        {result && !result.ok && (
-          <ErrorMessage title={result.error} suggestion={result.suggestion} />
+        {displayResult && !displayResult.ok && (
+          <ErrorMessage title={displayResult.error} suggestion={displayResult.suggestion} />
         )}
-        {result && result.ok && (
+        {displayResult && displayResult.ok && (
           <JsonView
-            data={result.jwk as object}
+            data={displayResult.jwk as object}
             shouldExpandNode={() => true}
             style={oneDarkStyles}
           />
