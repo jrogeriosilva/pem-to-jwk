@@ -23,6 +23,29 @@
     <meta name="twitter:title" content="PEM → JWK Converter" />
     <meta name="twitter:description" content="Free in-browser PEM to JWK converter. Paste a PEM and inspect every JWK field." />
     <meta name="twitter:image" content="https://jrogeriosilva.github.io/pem-to-jwk/og-image.svg" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "PEM → JWK Converter",
+      "url": "https://jrogeriosilva.github.io/pem-to-jwk/",
+      "description": "Free in-browser PEM to JWK converter. Paste a PEM-encoded public key, private key (PKCS#8), or X.509 certificate and get the equivalent JSON Web Key. Runs entirely in your browser — no data ever leaves your device.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "RSA public and private key conversion",
+        "EC key conversion (P-256, P-384, P-521, secp256k1)",
+        "Ed25519 / Ed448 / X25519 / X448 support",
+        "X.509 certificate metadata extraction",
+        "100% browser-side — no data sent to any server"
+      ]
+    }
+    </script>
     <script>
       // Respect the OS-level color scheme preference. Default to dark when no
       // preference is reported (matches the historical look of this app).

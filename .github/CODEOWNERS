@@ -1,0 +1,9 @@
+# Default owner for everything in the repository.
+# Pull requests targeting any path will request a review from @jrogeriosilva.
+* @jrogeriosilva
+
+# Cryptographic core — extra care required
+src/lib/asn1.ts @jrogeriosilva
+src/lib/pem-to-jwk.ts @jrogeriosilva
+src/lib/pem-detect.ts @jrogeriosilva
+src/lib/webcrypto-support.ts @jrogeriosilva
