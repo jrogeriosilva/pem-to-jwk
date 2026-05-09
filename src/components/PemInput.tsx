@@ -128,7 +128,12 @@ export function PemInput({ onPem }: PemInputProps) {
     e.preventDefault()
     dragCounterRef.current = 0
     setIsDragging(false)
-    const file = e.dataTransfer.files[0]
+    // `files` is empty for synthetic Playwright events; fall back to `items`
+    let file: File | null | undefined = e.dataTransfer.files[0]
+    if (!file && e.dataTransfer.items.length > 0) {
+      const item = e.dataTransfer.items[0]
+      if (item.kind === "file") file = item.getAsFile()
+    }
     if (file) await loadFile(file)
   }
 
