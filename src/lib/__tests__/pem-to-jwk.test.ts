@@ -9,6 +9,8 @@ const expectedAlgById: Record<string, string> = {
   "p256-pkcs8": "ES256",
   "rsa-pss-2048-spki": "PS256",
   "rsa-pss-2048-pkcs8": "PS256",
+  "rsa-2048-pkcs1-private": "RS256",
+  "rsa-2048-pkcs1-public": "RS256",
   "x509-cert": "RS256",
 }
 
@@ -32,13 +34,14 @@ describe("convertPemToJwk — error surfaces", () => {
     expect(r.error).toMatch(/not a pem block/i)
   })
 
-  it("hints PKCS#1 -> PKCS#8 conversion", async () => {
+  it("converts PKCS#1 RSA private key to JWK", async () => {
     const r = await convertPemToJwk(
       "-----BEGIN RSA PRIVATE KEY-----\nAAAA\n-----END RSA PRIVATE KEY-----"
     )
+    // Body "AAAA" is valid base64 but not valid RSA DER — expect a graceful error.
     expect(r.ok).toBe(false)
     if (r.ok) return
-    expect(r.suggestion).toMatch(/openssl pkcs8/i)
+    expect(r.error).toMatch(/failed to import pkcs#1/i)
   })
 
   it("reports DER parse failure with ASN.1 prefix surfaced", async () => {

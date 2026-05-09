@@ -1,4 +1,4 @@
-export type PemType = "spki" | "pkcs8" | "x509"
+export type PemType = "spki" | "pkcs8" | "x509" | "pkcs1-private" | "pkcs1-public"
 
 export const MAX_PEM_BYTES = 1_048_576 // 1 MiB
 
@@ -21,13 +21,11 @@ const SUPPORTED: Record<string, { type: PemType; label: string }> = {
   "PUBLIC KEY": { type: "spki", label: "PUBLIC KEY (SPKI)" },
   "PRIVATE KEY": { type: "pkcs8", label: "PRIVATE KEY (PKCS#8)" },
   CERTIFICATE: { type: "x509", label: "CERTIFICATE (X.509)" },
+  "RSA PRIVATE KEY": { type: "pkcs1-private", label: "RSA PRIVATE KEY (PKCS#1)" },
+  "RSA PUBLIC KEY": { type: "pkcs1-public", label: "RSA PUBLIC KEY (PKCS#1)" },
 }
 
 const UNSUPPORTED: Record<string, string> = {
-  "RSA PRIVATE KEY":
-    "PKCS#1 RSA keys aren't supported. Convert to PKCS#8 with: openssl pkcs8 -topk8 -nocrypt -in key.pem -out pkcs8.pem",
-  "RSA PUBLIC KEY":
-    "PKCS#1 RSA public keys aren't supported. Convert to SPKI with: openssl rsa -in key.pem -RSAPublicKey_in -pubout",
   "EC PRIVATE KEY":
     "SEC1 EC keys aren't supported. Convert to PKCS#8 with: openssl pkcs8 -topk8 -nocrypt -in key.pem -out pkcs8.pem",
   "ENCRYPTED PRIVATE KEY":

@@ -129,6 +129,57 @@ function derToPem(der: Uint8Array, label: string): string {
   return `-----BEGIN ${label}-----\n${lines.join("\n")}\n-----END ${label}-----\n`
 }
 
+// Version INTEGER v1 (value 0) used in PKCS#8 PrivateKeyInfo.
+const PKCS8_VERSION = new Uint8Array([0x02, 0x01, 0x00])
+
+// Wrap a PKCS#1 RSAPrivateKey DER blob in a PKCS#8 PrivateKeyInfo container
+// so jose can import it with importPKCS8.
+//
+// PrivateKeyInfo ::= SEQUENCE {
+//   version   INTEGER (0),
+//   algorithm AlgorithmIdentifier (rsaEncryption + NULL),
+//   key       OCTET STRING { RSAPrivateKey }
+// }
+function wrapPkcs1PrivateInPkcs8(der: Uint8Array): Uint8Array {
+  const lenBytes = encodeLength(der.length)
+  const octetString = new Uint8Array(1 + lenBytes.length + der.length)
+  octetString[0] = 0x04
+  octetString.set(lenBytes, 1)
+  octetString.set(der, 1 + lenBytes.length)
+
+  const body = new Uint8Array(
+    PKCS8_VERSION.length + RSA_ENCRYPTION_ALGID.length + octetString.length,
+  )
+  body.set(PKCS8_VERSION, 0)
+  body.set(RSA_ENCRYPTION_ALGID, PKCS8_VERSION.length)
+  body.set(octetString, PKCS8_VERSION.length + RSA_ENCRYPTION_ALGID.length)
+  return wrapSequence(body)
+}
+
+// Wrap a PKCS#1 RSAPublicKey DER blob in a SubjectPublicKeyInfo container
+// so jose can import it with importSPKI.
+//
+// SubjectPublicKeyInfo ::= SEQUENCE {
+//   algorithm AlgorithmIdentifier (rsaEncryption + NULL),
+//   key       BIT STRING { 0x00, RSAPublicKey }
+// }
+function wrapPkcs1PublicInSpki(der: Uint8Array): Uint8Array {
+  const bitBody = new Uint8Array(1 + der.length)
+  bitBody[0] = 0x00 // no unused bits
+  bitBody.set(der, 1)
+
+  const bitLenBytes = encodeLength(bitBody.length)
+  const bitString = new Uint8Array(1 + bitLenBytes.length + bitBody.length)
+  bitString[0] = 0x03
+  bitString.set(bitLenBytes, 1)
+  bitString.set(bitBody, 1 + bitLenBytes.length)
+
+  const body = new Uint8Array(RSA_ENCRYPTION_ALGID.length + bitString.length)
+  body.set(RSA_ENCRYPTION_ALGID, 0)
+  body.set(bitString, RSA_ENCRYPTION_ALGID.length)
+  return wrapSequence(body)
+}
+
 // RSA-PSS-flavored SPKIs/PKCS#8s carry the RSA-PSS algorithm OID. WebCrypto
 // (in Node and several browsers) refuses to import those even when asked for
 // PS256. The inner key material (RSAPublicKey / RSAPrivateKey) is identical
@@ -162,9 +213,41 @@ function rewritePkcs8AlgIdToRsa(der: Uint8Array): Uint8Array {
   return wrapSequence(newInner)
 }
 
+async function convertPkcs1ToJwk(
+  der: Uint8Array,
+  type: "pkcs1-private" | "pkcs1-public",
+  headerLabel: string,
+): Promise<ConvertResult> {
+  const alg = "RS256"
+  try {
+    let key: CryptoKey
+    if (type === "pkcs1-private") {
+      key = await importPKCS8(derToPem(wrapPkcs1PrivateInPkcs8(der), "PRIVATE KEY"), alg, {
+        extractable: true,
+      })
+    } else {
+      key = await importSPKI(derToPem(wrapPkcs1PublicInSpki(der), "PUBLIC KEY"), alg, {
+        extractable: true,
+      })
+    }
+    const jwk = await exportJWK(key)
+    return { ok: true, jwk, alg, type, headerLabel }
+  } catch (err) {
+    return {
+      ok: false,
+      error: `Failed to import PKCS#1 RSA key: ${(err as Error).message}`,
+      suggestion: "Verify the PEM contains a valid DER-encoded RSA key.",
+    }
+  }
+}
+
 export async function convertPemToJwk(pem: string): Promise<ConvertResult> {
   const detected = detectPem(pem)
   if (!detected.ok) return detected
+
+  if (detected.type === "pkcs1-private" || detected.type === "pkcs1-public") {
+    return convertPkcs1ToJwk(detected.body, detected.type, detected.headerLabel)
+  }
 
   let alg: string
   let algOid: string
