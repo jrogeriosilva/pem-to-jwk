@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { ClipboardPaste, Upload, X } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ErrorMessage } from "@/components/ErrorMessage"
@@ -66,16 +66,6 @@ export function PemInput({ onPem }: PemInputProps) {
     setInput(value)
     adjustHeight()
     debouncedDetect(value)
-  }
-
-  const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText()
-      applyText(text)
-      textareaRef.current?.focus()
-    } catch {
-      // Clipboard read may be blocked; ignore.
-    }
   }
 
   const handleClear = () => {
@@ -182,10 +172,6 @@ export function PemInput({ onPem }: PemInputProps) {
         )}
       </div>
       <div className="flex flex-wrap items-center gap-2 min-h-[28px]">
-        <Button variant="outline" size="sm" onClick={handlePaste}>
-          <ClipboardPaste />
-          Paste
-        </Button>
         <Button
           variant="outline"
           size="sm"
