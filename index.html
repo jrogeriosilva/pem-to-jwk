@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
     <title>PEM → JWK Converter — Convert PEM keys & certificates to JSON Web Key</title>
     <meta name="description" content="Free online PEM to JWK converter. Paste a public key, private key (PKCS#8), or X.509 certificate in PEM format and get the equivalent JSON Web Key. Runs entirely in your browser — no data ever leaves your device." />
     <meta name="keywords" content="PEM to JWK, JWK converter, PEM converter, JSON Web Key, public key JWK, PKCS#8 to JWK, X.509 to JWK, RSA JWK, EC JWK, browser-only" />
@@ -12,9 +13,30 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="PEM → JWK — Convert PEM keys & certificates to JSON Web Key" />
     <meta property="og:description" content="Free in-browser PEM to JWK converter. Paste a PEM and inspect every JWK field. No data ever leaves your device." />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:url" content="https://jrogeriosilva.github.io/pem-to-jwk/" />
+    <meta property="og:image" content="https://jrogeriosilva.github.io/pem-to-jwk/og-image.svg" />
+    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="PEM → JWK: convert PEM keys and certificates to JSON Web Key" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="PEM → JWK Converter" />
     <meta name="twitter:description" content="Free in-browser PEM to JWK converter. Paste a PEM and inspect every JWK field." />
+    <meta name="twitter:image" content="https://jrogeriosilva.github.io/pem-to-jwk/og-image.svg" />
+    <script>
+      // Respect the OS-level color scheme preference. Default to dark when no
+      // preference is reported (matches the historical look of this app).
+      (function () {
+        try {
+          var mql = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)")
+          if (!mql || !mql.matches) {
+            document.documentElement.classList.add("dark")
+          }
+        } catch (_) {
+          document.documentElement.classList.add("dark")
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
